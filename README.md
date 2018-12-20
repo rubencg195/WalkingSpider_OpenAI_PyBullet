@@ -1,10 +1,13 @@
 # WalkingSpider_OpenAI_PyBullet_ROS
 
-# Building
-
-
-![spider](/images/spider(2).jpeg)
+# Design
 ![spider](/images/URDF.png)
+
+# Simulation
+![spider](/PyBullet.png)
+
+# Building
+![spider](/images/spider(2).jpeg)
 ![spider](/images/spider(4).jpeg)
 ![spider](/images/spider(8).jpeg)
 ![spider](/images/spider(1).jpeg)
@@ -16,5 +19,4 @@
 # CAD
 ![spider](/images/CAD/1aab238b7800d3096ec45e017554c280_preview_featured.jpg)
 
-# Simulation
 
