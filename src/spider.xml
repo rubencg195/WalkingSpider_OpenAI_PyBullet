@@ -11,6 +11,12 @@
 			</geometry>
 			<material name="Red1" />
 		</visual>
+    <collision>
+			<origin xyz="0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.015 0.045" />
+			</geometry>
+    </collision>
 	</link>
   <link name="left_h_front_link">
 		<visual>
@@ -20,6 +26,12 @@
 			</geometry>
 			<material name="Blue1" />
 		</visual>
+    <collision>
+			<origin xyz="0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.045 0.015" />
+			</geometry>
+    </collision>
 	</link>
   <link name="left_front_leg_link">
 		<visual>
@@ -29,6 +41,12 @@
 			</geometry>
 			<material name="Green1" />
 		</visual>
+    <collision>
+			<origin xyz="0 0 -0.025" rpy="0 0 0" />
+			<geometry>
+				<box size="0.02 0.01 0.075" />
+			</geometry>
+    </collision>
 	</link>
   <joint name="left_front_joint" type="revolute">
 		<parent link="base_link" />
@@ -56,9 +74,17 @@
 			<origin xyz="0.025 0 0" rpy="0 0 0" />
 			<geometry>
 				<box size="0.03 0.015 0.045" />
+         <!-- <mesh filename="meshes/servo_joint.stl"/> -->
 			</geometry>
 			<material name="Red1" />
 		</visual>
+    <collision>
+			<origin xyz="0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.015 0.045" />
+         <!-- <mesh filename="meshes/servo_joint.stl"/> -->
+			</geometry>
+    </collision>
 	</link>
   <link name="right_h_front_link">
 		<visual>
@@ -68,6 +94,12 @@
 			</geometry>
 			<material name="Blue1" />
 		</visual>
+    <collision>
+      <origin xyz="0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.045 0.015" />
+			</geometry>
+    </collision>
 	</link>
   <link name="right_front_leg_link">
 		<visual>
@@ -77,6 +109,12 @@
 			</geometry>
 			<material name="Green1" />
 		</visual>
+    <collision>
+      <origin xyz="0 0 -0.025" rpy="0 0 0" />
+			<geometry>
+				<box size="0.02 0.01 0.075" />
+			</geometry>
+    </collision>
 	</link>
   <joint name="right_front_joint" type="revolute">
 		<parent link="base_link" />
@@ -107,6 +145,12 @@
 			</geometry>
 			<material name="Red1" />
 		</visual>
+    <collision>
+      <origin xyz="-0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.015 0.045" />
+			</geometry>
+    </collision>
 	</link>
   <link name="left_h_back_link">
 		<visual>
@@ -116,6 +160,12 @@
 			</geometry>
 			<material name="Blue1" />
 		</visual>
+    <collision>
+      <origin xyz="-0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.045 0.015" />
+			</geometry>
+    </collision>
 	</link>
   <link name="left_back_leg_link">
 		<visual>
@@ -125,6 +175,12 @@
 			</geometry>
 			<material name="Green1" />
 		</visual>
+    <collision>
+      <origin xyz="0 0 -0.025" rpy="0 0 0" />
+			<geometry>
+				<box size="0.02 0.01 0.075" />
+			</geometry>
+    </collision>
 	</link>
   <joint name="left_back_joint" type="revolute">
 		<parent link="base_link" />
@@ -155,6 +211,12 @@
 			</geometry>
 			<material name="Red1" />
 		</visual>
+    <collision>
+      <origin xyz="-0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.015 0.045" />
+			</geometry>
+    </collision>
 	</link>
   <link name="right_h_back_link">
 		<visual>
@@ -164,6 +226,12 @@
 			</geometry>
 			<material name="Blue1" />
 		</visual>
+    <collision>
+      <origin xyz="-0.025 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.03 0.045 0.015" />
+			</geometry>
+    </collision>
 	</link>
   <link name="right_back_leg_link">
 		<visual>
@@ -173,6 +241,12 @@
 			</geometry>
 			<material name="Green1" />
 		</visual>
+    <collision>
+      <origin xyz="0 0 -0.025" rpy="0 0 0" />
+			<geometry>
+				<box size="0.02 0.01 0.075" />
+			</geometry>
+    </collision>
 	</link>
   <joint name="right_back_joint" type="revolute">
 		<parent link="base_link" />
@@ -203,6 +277,12 @@
 			</geometry>
 			<material name="Cyan1" />
 		</visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.125 0.125 0.035" />
+			</geometry>
+    </collision>
 	</link>
 	<!-- * * * Colors Definitions * * * -->
 	<material name="Red1">
