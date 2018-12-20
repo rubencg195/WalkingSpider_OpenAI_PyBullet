@@ -4,7 +4,7 @@
 ![spider](/images/URDF.png)
 
 # Simulation
-![spider](/PyBullet.png)
+![spider](/images/PyBullet.png)
 
 # Building
 ![spider](/images/spider(2).jpeg)
