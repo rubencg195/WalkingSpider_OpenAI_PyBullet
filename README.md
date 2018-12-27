@@ -6,6 +6,12 @@
 # Simulation
 ![spider](/images/PyBullet.png)
 
+# Video Demo
+
+https://youtu.be/j9sysG-EIkQ
+
+[![Watch the video](/images/youtube.png)](https://youtu.be/j9sysG-EIkQ)
+
 # Building
 ![spider](/images/spider(2).jpeg)
 ![spider](/images/spider(4).jpeg)
