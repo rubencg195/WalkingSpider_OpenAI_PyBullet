@@ -15,3 +15,5 @@ conda env export > <environment-name>.yml
 
 #For other person to use the environment
 conda env create -f <environment-name>.yml
+
+pip install -r requirements.txt
