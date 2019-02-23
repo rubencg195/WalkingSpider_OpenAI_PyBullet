@@ -156,10 +156,10 @@ class WalkingSpider(gym.Env):
 
     JointStates   = p.getJointStates(self.robotId, self.movingJoints ) 
     torques = np.array([ np.array(joint[3]) for joint in JointStates ])
-    ctrl_cost = .5 * np.square(torques).sum()
+    ctrl_cost = 5 * np.square(torques).sum()
 
     ContactPoints = p.getContactPoints(self.robotId, self.plane)
-    contact_cost = 0.5 * 1e-3 * len(ContactPoints)
+    contact_cost = 2.2 * 1e-2 * len(ContactPoints)
     survive_reward = 1.0
     reward = forward_reward - ctrl_cost - contact_cost + survive_reward
     # print("Reward ", reward , "Contact Cost ", contact_cost, "forward reward ",forward_reward, "Control Cost ", ctrl_cost)
