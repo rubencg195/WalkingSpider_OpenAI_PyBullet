@@ -1,0 +1,6 @@
+setup.py
+walking_spider.egg-info/PKG-INFO
+walking_spider.egg-info/SOURCES.txt
+walking_spider.egg-info/dependency_links.txt
+walking_spider.egg-info/requires.txt
+walking_spider.egg-info/top_level.txt
