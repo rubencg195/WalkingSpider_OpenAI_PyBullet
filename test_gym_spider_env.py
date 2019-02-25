@@ -5,12 +5,14 @@ import walking_spider
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv, DummyVecEnv
 from stable_baselines import PPO2
+"""
 
+"""
 # multiprocess environment
 n_cpu = 4
 # env = SubprocVecEnv([lambda: gym.make('WalkingSpider-v0') for i in range(n_cpu)])
 # env = gym.make('RoboschoolAnt-v1')
-env = DummyVecEnv([lambda: gym.make('WalkingSpider-v0')])
+# env = DummyVecEnv([lambda: gym.make('WalkingSpider-v0')])
 
 # model = PPO2(MlpPolicy, env, verbose=1)
 # model.learn(total_timesteps=20000000)
@@ -28,10 +30,10 @@ env = DummyVecEnv([lambda: gym.make('WalkingSpider-v0')])
 #     env.render()
 
 # env = gym.make('Ant-v2')
-# env = gym.make('WalkingSpider-v0')
-# env.reset()
-# for _ in range(1000):
-#     env.render()
-#     observation, reward, done, info = env.step(env.action_space.sample()) # take a random action
 
-#     print("Obs Shape ", env.action_space.sample().shape)
+env = gym.make('WalkingSpider-v0')
+env.reset()
+for _ in range(1000):
+    env.render()
+    observation, reward, done, info = env.step(env.action_space.sample()) # take a random action
+    print("Obs Shape ", observation.shape, " Action Shape ", env.action_space.sample().shape)
