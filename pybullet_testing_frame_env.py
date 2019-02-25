@@ -12,6 +12,7 @@ import numpy as np
 
 class WalkingSpider(gym.Env):
   def __init__(self, render=True):
+    super(WalkingSpider, self).__init__()
     self._observation      = []
     self.action_space      = spaces.Box(low=-1, high=1, shape=(10,))
     self.observation_space = spaces.Box(low=-1, high=1, shape=(8,)) 

@@ -17,10 +17,11 @@ class WalkingSpiderEnv(gym.Env):
         'video.frames_per_second': 50
     }
 
-    def __init__(self, render=True):
+    def __init__(self, render=False):
+        super(WalkingSpiderEnv, self).__init__()
         self._observation = []
-        self.action_space = spaces.Box(low=-1, high=1, shape=(10,))
-        self.observation_space = spaces.Box(low=-1, high=1, shape=(8,))
+        self.action_space = spaces.Box(low=-1, high=1, shape=(10,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-1, high=1, shape=(75,),dtype=np.float32)
         if (render):
             self.physicsClient = p.connect(p.GUI)
         else:
@@ -70,6 +71,7 @@ class WalkingSpiderEnv(gym.Env):
             ornObj=self.cubeStartOrientation
         )
         self.observation = self.compute_observation()
+        print("Reset observation", self.observation.shape)
         return np.array(self._observation)
 
     def moveLeg(self, robot, id, target):
@@ -81,24 +83,20 @@ class WalkingSpiderEnv(gym.Env):
             # controlMode   = p.VELOCITY_CONTROL,        #p.POSITION_CONTROL,
             # targetVelocity= target                     #targetPosition=position,
             controlMode=p.POSITION_CONTROL,  # p.POSITION_CONTROL,
-            targetVelocity=target
+            # targetVelocity=target
+            targetPosition=target
         )
 
     def assign_throttle(self, action):
-        deltav = 1
+        deltav = 0.5
         for i, key in enumerate(self.movingJoints):
-          self.vt[i] = self.clamp(self.vt[i] + action[i], -1.5, 1.5)
+          self.vt[i] = self.clamp(self.vt[i] + action[i], -2, 2)
           self.moveLeg(robot=self.robotId, id=key,  target=self.vt[i])
 
     def clamp(self, n, minn, maxn):
         return max(min(maxn, n), minn)
 
     def compute_observation(self):
-        p.addUserDebugLine(lineFromXYZ=(0, 0, 0), lineToXYZ=(
-            0.3, 0, 0), lineWidth=5, lineColorRGB=[0, 255, 0], parentObjectUniqueId=self.robotId)
-        p.addUserDebugText("Rewards {}".format(
-            0.0), [0, 0, 0.3], textSize=2.5, parentObjectUniqueId=self.robotId)
-
         baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
         JointStates = p.getJointStates(self.robotId, self.movingJoints)
         BaseAngVel = p.getBaseVelocity(self.robotId)
@@ -175,11 +173,15 @@ class WalkingSpiderEnv(gym.Env):
         ctrl_cost = 5 * np.square(torques).sum()
 
         ContactPoints = p.getContactPoints(self.robotId, self.plane)
-        contact_cost = 0.5 * 1e-1 * len(ContactPoints)
+        contact_cost = 0.3 * 1e-1 * len(ContactPoints)
         survive_reward = 1.0
         reward = forward_reward - ctrl_cost - contact_cost + survive_reward
         # print("Reward ", reward , "Contact Cost ", contact_cost, "forward reward ",forward_reward, "Control Cost ", ctrl_cost)
-        print("Reward ", reward)
+        # print("Reward ", reward)
+        p.addUserDebugLine(lineFromXYZ=(0, 0, 0), lineToXYZ=(
+            0.3, 0, 0), lineWidth=5, lineColorRGB=[0, 255, 0], parentObjectUniqueId=self.robotId)
+        p.addUserDebugText("Rewards {}".format(
+            reward), [0, 0, 0.3],lifeTime=0.25, textSize=2.5, parentObjectUniqueId=self.robotId)
         return reward
 
     def compute_done(self):
