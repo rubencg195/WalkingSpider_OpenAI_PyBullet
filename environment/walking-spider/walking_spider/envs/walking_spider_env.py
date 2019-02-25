@@ -17,7 +17,7 @@ class WalkingSpiderEnv(gym.Env):
         'video.frames_per_second': 50
     }
 
-    def __init__(self, render=False):
+    def __init__(self, render=True):
         super(WalkingSpiderEnv, self).__init__()
         self._observation = []
         self.action_space = spaces.Box(low=-1, high=1, shape=(10,), dtype=np.float32)
