@@ -50,7 +50,7 @@ class WalkingSpider(gym.Env):
     reward              = self.compute_reward()
     done                = self.compute_done()
     self.envStepCounter += 1
-    return np.array(self.observation), reward, done, {}
+    return self.observation, reward, done, {}
   
   def reset(self):
     self.vt              = [0,0,0,0,0,0,0,0]

@@ -15,14 +15,15 @@ model = PPO2(MlpPolicy, env, verbose=1)
 
 # model.save("ppo2_robotschool_ant_v2")
 # del model # remove to demonstrate saving and loading
-# model = PPO2.load("ppo2_robotschool_ant_v2")
-model = PPO2.load("ppo2_robotschool_ant_v2_2")
+model = PPO2.load("ppo2_robotschool_ant_v2")
+# model = PPO2.load("ppo2_robotschool_ant_v2_2")
 
 # Enjoy trained agent
 obs = env.reset()
 while True:
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)
+    print(obs.shape)
     env.render()
 
 
