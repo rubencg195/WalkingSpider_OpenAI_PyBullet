@@ -21,7 +21,7 @@ class WalkingSpiderEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def __init__(self, render=False):
+    def __init__(self, render=True):
         super(WalkingSpiderEnv, self).__init__()
         self.action_space = spaces.Box(
             low=-1, high=1, shape=(10,), dtype=np.float32)
@@ -161,26 +161,43 @@ class WalkingSpiderEnv(gym.Env):
     def compute_reward(self):
       baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
       xposbefore = baseOri[0][0]
+
+      BaseAngVel = p.getBaseVelocity(self.robotId)
+      xvelbefore = BaseAngVel[0][0]
+
       p.stepSimulation()
+      
       baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
       xposafter = baseOri[0][0]
-      forward_reward = (xposafter - xposbefore)
+
+      BaseAngVel = p.getBaseVelocity(self.robotId)
+      xvelafter  = BaseAngVel[0][0]
+
+      # forward_reward = (xposafter - xposbefore)
+      forward_reward = 20 * (xvelbefore - xvelafter)
+
 
       JointStates = p.getJointStates(self.robotId, self.movingJoints)
       torques = np.array([np.array(joint[3]) for joint in JointStates])
-      ctrl_cost = 5 * np.square(torques).sum()
+      ctrl_cost = 1.0 * np.square(torques).sum()
 
       ContactPoints = p.getContactPoints(self.robotId, self.plane)
-      contact_cost = 0.3 * 1e-1 * len(ContactPoints)
-      survive_reward = 1.0
+      contact_cost = 5 * 1e-1 * len(ContactPoints)
+      # survive_reward = 1.0
+      survive_reward = 0.0
       reward = forward_reward - ctrl_cost - contact_cost + survive_reward
       # print("Reward ", reward , "Contact Cost ", contact_cost, "forward reward ",forward_reward, "Control Cost ", ctrl_cost)
       # print("Reward ", reward)
+      reward = reward if reward > 0 else 0
+
       p.addUserDebugLine(lineFromXYZ=(0, 0, 0), lineToXYZ=(
           0.3, 0, 0), lineWidth=5, lineColorRGB=[0, 255, 0], parentObjectUniqueId=self.robotId)
       p.addUserDebugText("Rewards {}".format(
           reward), [0, 0, 0.3],lifeTime=0.25, textSize=2.5, parentObjectUniqueId=self.robotId)
-      return reward
+    #   print("Forward Reward", reward )
+    #   print("Forward Reward", forward_reward, ctrl_cost, contact_cost , xvelbefore, xvelafter, xposbefore, xposafter )
+
+      return reward 
 
     def compute_done(self):
       return False
