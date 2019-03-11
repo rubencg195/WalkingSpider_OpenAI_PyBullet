@@ -21,7 +21,7 @@ class WalkingSpiderEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def __init__(self, render=True):
+    def __init__(self, render=False):
         super(WalkingSpiderEnv, self).__init__()
         self.action_space = spaces.Box(
             low=-1, high=1, shape=(10,), dtype=np.float32)
