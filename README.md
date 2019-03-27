@@ -4,7 +4,8 @@
 ![spider](/images/URDF.png)
 
 # Simulation
-![spider](/images/spider.gif  width="400" height="400" )
+<img src="/images/spider.gif" data-canonical-src="/images/spider.gif" width="600" height="400" />
+
 ![spider](/images/PyBullet.png)
 
 # Video Demo
