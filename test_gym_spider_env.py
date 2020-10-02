@@ -21,7 +21,7 @@ import numpy as np
 # del model # remove to demonstrate saving and loading
 
 # # # Enjoy trained agent
-model = PPO2.load("experience_learned/ppo2_WalkingSpider_v0_testing_3")
+model = PPO2.load("experience_learned/ppo2_WalkingSpider_v0_testing_3.pkl")
 print("Enjoy trained agent")
 env = DummyVecEnv([lambda: gym.make('WalkingSpider-v0')])
 obs = env.reset()
