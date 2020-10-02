@@ -6,7 +6,7 @@
 
 ---
 
-## Steps taken (might be wrong)
+## Steps taken to run `test_gym_spider_env.py`
 - Run  
     ```python
     $ conda env create -f <environment-name>.yml
@@ -22,7 +22,7 @@
 	- For example in linux, copy destination would be  
 	  `/home/<user>/anaconda3/envs/<envName>/python<version>/` 
 
-### Running an Example
+### Running the Script
 - before running make sure `import walking_spider` works outside local dir
 - install any pending requirements from requirements.txt, or while running the example
 - Run `test_gym_spider_env.py` for a pre-trained spider
