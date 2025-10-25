@@ -808,6 +808,110 @@ The following changes provide maximum impact with minimal effort:
 
 These three fixes will immediately address the "slippery robot" issue visible in the training videos.
 
+## Troubleshooting
+
+### PyBullet Installation Issues on Windows
+
+**Problem:** `error: Microsoft Visual C++ 14.0 or greater is required`
+
+PyBullet requires compilation on Windows, which needs a C++ compiler. Here are the solutions:
+
+**Option 1: Install Visual C++ Build Tools (Recommended)**
+```bash
+# Download from Microsoft:
+# https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+# After installation, try pip install again:
+pip install pybullet
+```
+
+**Option 2: Use Pre-built Docker Container**
+```bash
+# If you have Docker, use a Python image with build tools:
+docker run -it python:3.12-full bash
+pip install pybullet gym numpy imageio
+```
+
+**Option 3: Use Conda (Most Reliable)**
+```bash
+# Conda has pre-built binary wheels for pybullet:
+conda create -n spider python=3.10
+conda activate spider
+conda install -c conda-forge pybullet
+pip install gym numpy imageio
+```
+
+**Option 4: Use Windows Subsystem for Linux 2 (WSL2)**
+```bash
+# Inside WSL2 Ubuntu:
+sudo apt update && sudo apt install build-essential python3-dev
+python3 -m venv venv_spider
+source venv_spider/bin/activate
+pip install pybullet gym numpy imageio
+```
+
+**Option 5: Pre-compiled Wheel (if available)**
+Check if a `.whl` file is available for your Python version at:
+https://pypi.org/project/pybullet/
+
+---
+
+### Gym Version Compatibility Warning
+
+**Warning:** `Gym has been unmaintained since 2022 and does not support NumPy 2.0...`
+
+This is just a warning - Gym still works fine. To suppress it or migrate:
+
+```python
+# Option 1: Just ignore the warning (works fine)
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
+import gym
+
+# Option 2: Migrate to Gymnasium (drop-in replacement)
+pip uninstall gym
+pip install gymnasium
+# Then replace: import gymnasium as gym
+```
+
+---
+
+### Module Not Found Errors
+
+**Problem:** `ModuleNotFoundError: No module named 'gym'` or `'pybullet'`
+
+```bash
+# Verify your virtual environment is activated:
+
+# On Windows:
+.\venv_spider\Scripts\activate
+
+# On macOS/Linux:
+source venv_spider/bin/activate
+
+# Then check installed packages:
+pip list | grep -E "gym|pybullet|numpy"
+
+# If missing, install:
+pip install gym pybullet numpy imageio
+```
+
+---
+
+### Running Tests Without GUI on Windows
+
+If you have headless PyBullet issues, use `render_mode='rgb_array'` instead of `render_mode='human'`:
+
+```python
+# This works headless:
+env = WalkingSpiderEnv(render=False, enable_gif_recording=True)
+
+# This requires display (may fail on Windows servers):
+env = WalkingSpiderEnv(render=True)  # Don't use on headless systems
+```
+
+---
+
 ## Contributing
 
 To contribute improvements:
