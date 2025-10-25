@@ -10,6 +10,14 @@ import time
 import math
 import numpy as np
 
+# Import GIF recorder for visual debugging
+try:
+    from .gif_recorder import GifRecorder
+    GIF_RECORDER_AVAILABLE = True
+except ImportError:
+    GIF_RECORDER_AVAILABLE = False
+    print("⚠️  GIF recorder not available")
+
 
 class WalkingSpiderEnv(gym.Env):
     metadata = {
@@ -21,18 +29,32 @@ class WalkingSpiderEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def __init__(self, render=True):
+    def __init__(self, render=True, enable_gif_recording=False):
         super(WalkingSpiderEnv, self).__init__()
+        # FIXED: Action space should be (8,) not (10,) - we have 8 moving joints
         self.action_space = spaces.Box(
-            low=-1, high=1, shape=(10,), dtype=np.float32)
+            low=-1, high=1, shape=(8,), dtype=np.float32)
         self.observation_space = spaces.Box(
             low=-1, high=1, shape=(75,), dtype=np.float32)
 
         self._observation = []
+        self.render_mode = render
         if (render):
             self.physicsClient = p.connect(p.GUI)
         else:
             self.physicsClient = p.connect(p.DIRECT)  # non-graphical version
+        
+        # Initialize GIF recorder for visual debugging
+        if GIF_RECORDER_AVAILABLE and enable_gif_recording:
+            self.gif_recorder = GifRecorder(
+                save_dir='videos', 
+                duration_seconds=10, 
+                fps=30,
+                enabled=True
+            )
+            self.gif_recorder.start_recording()
+        else:
+            self.gif_recorder = None
         p.setAdditionalSearchPath(
             pybullet_data.getDataPath())  # used by loadURDF
         p.resetDebugVisualizerCamera(
@@ -54,6 +76,35 @@ class WalkingSpiderEnv(gym.Env):
             self.cubeStartOrientation
         )
         self.movingJoints = [0, 2, 3, 5, 6, 8, 9, 11]
+        
+        # IMPROVEMENT: Set friction parameters to prevent slipping
+        # Set friction for the plane (ground)
+        p.changeDynamics(
+            self.plane, -1,
+            lateralFriction=1.5,      # Increased from default ~0.5
+            spinningFriction=0.1,
+            rollingFriction=0.01,
+            restitution=0.0           # No bouncing
+        )
+        
+        # Set friction for robot leg tips (link indices for leg endpoints)
+        leg_link_indices = [2, 5, 8, 11]  # Front-Left, Front-Right, Back-Left, Back-Right
+        for link in leg_link_indices:
+            p.changeDynamics(
+                self.robotId, link,
+                lateralFriction=1.5,
+                spinningFriction=0.1,
+                rollingFriction=0.01,
+                contactStiffness=30000,   # Stiffer contact
+                contactDamping=1000       # Damped contact
+            )
+        
+        # Set friction for base body to prevent sliding
+        p.changeDynamics(
+            self.robotId, -1,
+            lateralFriction=0.8,
+            mass=0.2
+        )
 
     def reset(self):
         self.vt = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -74,6 +125,11 @@ class WalkingSpiderEnv(gym.Env):
         reward = self.compute_reward()
         done = self.compute_done()
         self.envStepCounter += 1
+        
+        # Capture frame for GIF recording (every other frame for 30fps)
+        if self.gif_recorder and self.envStepCounter % 2 == 0:
+            self.gif_recorder.capture_frame(self.physicsClient)
+        
         return observation, reward, done, {}
 
     def clamp(self, n, minn, maxn):
@@ -82,11 +138,16 @@ class WalkingSpiderEnv(gym.Env):
     def moveLeg(self, robot, id, target):
       if(robot is None):
           return
+      # IMPROVEMENT: Added PD control parameters and force limits for better motor control
       p.setJointMotorControl2(
           bodyUniqueId=robot,
           jointIndex=id,
-          controlMode=p.POSITION_CONTROL,  # controlMode   = p.VELOCITY_CONTROL,        #p.POSITION_CONTROL,
-          targetPosition=target # targetVelocity=target # targetVelocity= target                     #targetPosition=position,
+          controlMode=p.POSITION_CONTROL,
+          targetPosition=target,
+          force=10.0,              # Maximum force (Newton-meters)
+          positionGain=0.5,        # P gain for position control
+          velocityGain=0.1,        # D gain for damping
+          maxVelocity=3.0          # Limit maximum velocity (rad/s)
       )    
 
     def assign_throttle(self, action):
@@ -159,47 +220,102 @@ class WalkingSpiderEnv(gym.Env):
       return obs.tolist()
 
     def compute_reward(self):
+      """
+      IMPROVEMENT: Multi-objective reward function for better walking behavior.
+      Rewards forward motion, stability, and energy efficiency while penalizing bad contacts.
+      """
+      # Get current state
       baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
-      xposbefore = baseOri[0][0]
-
       BaseAngVel = p.getBaseVelocity(self.robotId)
-      xvelbefore = BaseAngVel[0][0]
-
+      JointStates = p.getJointStates(self.robotId, self.movingJoints)
+      ContactPoints = p.getContactPoints(self.robotId, self.plane)
+      
       p.stepSimulation()
       
-      baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
-      xposafter = baseOri[0][0]
-
-      BaseAngVel = p.getBaseVelocity(self.robotId)
-      xvelafter  = BaseAngVel[0][0]
-
-      # forward_reward = (xposafter - xposbefore)
-      forward_reward = 20 * (xvelbefore - xvelafter)
-
-
-      JointStates = p.getJointStates(self.robotId, self.movingJoints)
-      torques = np.array([np.array(joint[3]) for joint in JointStates])
-      ctrl_cost = 1.0 * np.square(torques).sum()
-
-      ContactPoints = p.getContactPoints(self.robotId, self.plane)
-      contact_cost = 5 * 1e-1 * len(ContactPoints)
-      # survive_reward = 1.0
-      survive_reward = 0.0
-      reward = forward_reward - ctrl_cost - contact_cost + survive_reward
-      # print("Reward ", reward , "Contact Cost ", contact_cost, "forward reward ",forward_reward, "Control Cost ", ctrl_cost)
-      # print("Reward ", reward)
-      reward = reward if reward > 0 else 0
-
-      p.addUserDebugLine(lineFromXYZ=(0, 0, 0), lineToXYZ=(
-          0.3, 0, 0), lineWidth=5, lineColorRGB=[0, 255, 0], parentObjectUniqueId=self.robotId)
-      p.addUserDebugText("Rewards {}".format(
-          reward), [0, 0, 0.3],lifeTime=0.25, textSize=2.5, parentObjectUniqueId=self.robotId)
-    #   print("Forward Reward", reward )
-    #   print("Forward Reward", forward_reward, ctrl_cost, contact_cost , xvelbefore, xvelafter, xposbefore, xposafter )
-
+      # Get state after simulation step
+      baseOri_after = np.array(p.getBasePositionAndOrientation(self.robotId))
+      BaseAngVel_after = p.getBaseVelocity(self.robotId)
+      
+      # 1. FORWARD VELOCITY REWARD (main objective)
+      forward_velocity = BaseAngVel_after[0][0]
+      forward_reward = 10.0 * forward_velocity
+      
+      # 2. STABILITY REWARD (keep upright at target height)
+      z_height = baseOri_after[0][2]
+      target_height = 0.06
+      height_reward = -5.0 * abs(z_height - target_height)
+      
+      # 3. ORIENTATION PENALTY (prevent flipping)
+      orientation = baseOri_after[1]  # quaternion
+      roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
+      orientation_penalty = -2.0 * (abs(roll) + abs(pitch))
+      
+      # 4. ENERGY EFFICIENCY (minimize torque usage)
+      torques = np.array([joint[3] for joint in JointStates])
+      energy_cost = -0.1 * np.square(torques).sum()
+      
+      # 5. SMOOTH MOTION (minimize jerky movements)
+      joint_vels = np.array([joint[1] for joint in JointStates])
+      smoothness_penalty = -0.01 * np.square(joint_vels).sum()
+      
+      # 6. CONTACT PENALTY (only penalize body/base contacts, not foot contacts)
+      leg_links = {2, 5, 8, 11}  # Foot link indices
+      bad_contacts = [c for c in ContactPoints if c[4] not in leg_links]
+      contact_penalty = -5.0 * len(bad_contacts)
+      
+      # 7. SURVIVAL BONUS
+      alive_bonus = 1.0
+      
+      # TOTAL REWARD
+      total_reward = (
+          forward_reward + 
+          height_reward + 
+          orientation_penalty + 
+          energy_cost + 
+          smoothness_penalty + 
+          contact_penalty + 
+          alive_bonus
+      )
+      
+      # Clip to non-negative (optional - can allow negative for learning)
+      reward = max(0, total_reward)
+      
+      # Visual debug info
+      p.addUserDebugLine(
+          lineFromXYZ=(0, 0, 0), lineToXYZ=(0.3, 0, 0), 
+          lineWidth=5, lineColorRGB=[0, 255, 0], 
+          parentObjectUniqueId=self.robotId
+      )
+      p.addUserDebugText(
+          f"R:{reward:.1f} V:{forward_velocity:.2f}", 
+          [0, 0, 0.3], lifeTime=0.25, textSize=2.5, 
+          parentObjectUniqueId=self.robotId
+      )
+      
       return reward 
 
     def compute_done(self):
+      """
+      IMPROVEMENT: Proper termination conditions.
+      Episode ends if robot falls, flips over, or reaches max steps.
+      """
+      baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
+      z_height = baseOri[0][2]
+      
+      # Terminate if fallen (too low)
+      if z_height < 0.03:
+          return True
+      
+      # Terminate if flipped over (extreme orientation)
+      orientation = baseOri[1]
+      roll, pitch, yaw = p.getEulerFromQuaternion(orientation)
+      if abs(roll) > 1.5 or abs(pitch) > 1.5:  # ~85 degrees
+          return True
+      
+      # Terminate after maximum steps (prevent infinite episodes)
+      if self.envStepCounter > 1000:
+          return True
+      
       return False
     
     def render(self, mode='human', close=False):
