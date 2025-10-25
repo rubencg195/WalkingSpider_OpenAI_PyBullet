@@ -1,10 +1,7 @@
-Metadata-Version: 1.0
-Name: walking-spider
+Metadata-Version: 2.4
+Name: walking_spider
 Version: 0.0.1
-Summary: UNKNOWN
-Home-page: UNKNOWN
-Author: UNKNOWN
-Author-email: UNKNOWN
-License: UNKNOWN
-Description: UNKNOWN
-Platform: UNKNOWN
+Requires-Dist: gym
+Requires-Dist: pybullet
+Requires-Dist: baselines
+Dynamic: requires-dist
