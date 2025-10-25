@@ -1,0 +1,301 @@
+================================================================================
+WALKING SPIDER DEBUG LOGGING GUIDE
+================================================================================
+
+This guide explains how to use the comprehensive logging system to debug the
+walking spider robot. The logging system captures detailed state information,
+physics parameters, and training metrics for analysis.
+
+================================================================================
+WHY USE LOGGING?
+================================================================================
+
+When debugging robot behavior, visual simulation alone is insufficient because:
+- Issues may be subtle or intermittent
+- AI assistants cannot see the simulation
+- Numerical data is needed for root cause analysis
+- Historical comparisons help track improvements
+
+The logging system captures everything needed for iterative debugging.
+
+================================================================================
+QUICK START
+================================================================================
+
+1. Run test with logging enabled:
+   
+   python test_spider_with_logging.py --log-level DEBUG --episodes 3
+
+2. Logs are saved to: logs/debug/
+   - spider_debug_TIMESTAMP.log    (detailed text log)
+   - spider_data_TIMESTAMP.json    (structured data)
+   - spider_summary_TIMESTAMP.txt  (statistics summary)
+
+3. Analyze logs:
+   
+   python analyze_spider_logs.py --summary --problems
+
+4. Share snippet with AI assistant for debugging:
+   
+   python analyze_spider_logs.py --episode 2 --export episode2.json
+
+================================================================================
+LOGGING LEVELS
+================================================================================
+
+DEBUG    - All information (very verbose)
+           Use for: Deep debugging, analyzing specific steps
+           
+INFO     - Important events and statistics
+           Use for: General training monitoring
+           
+WARNING  - Potential issues
+           Use for: Production monitoring
+           
+ERROR    - Errors and failures
+           Use for: Critical issues only
+
+================================================================================
+AVAILABLE TOOLS
+================================================================================
+
+1. test_spider_with_logging.py
+   - Test environment with comprehensive logging
+   - Supports random actions and trained models
+   
+   Examples:
+   $ python test_spider_with_logging.py --mode random --episodes 5
+   $ python test_spider_with_logging.py --mode trained --model path/to/model.pkl
+   $ python test_spider_with_logging.py --log-level DEBUG --max-steps 1000
+
+2. analyze_spider_logs.py
+   - Analyze existing log files
+   - Find problems and patterns
+   - Export snippets for sharing
+   
+   Examples:
+   $ python analyze_spider_logs.py                    # Analyze latest log
+   $ python analyze_spider_logs.py --problems         # Find issues
+   $ python analyze_spider_logs.py --rewards          # Reward breakdown
+   $ python analyze_spider_logs.py --episode 3 --verbose  # Detailed episode
+   $ python analyze_spider_logs.py --episode 3 --export ep3.json  # Share
+
+3. debug_logger.py (API)
+   - Python API for custom logging
+   
+   Example usage in your code:
+   
+   from walking_spider.envs.debug_logger import create_logger
+   
+   logger = create_logger(log_level='INFO', log_dir='logs/debug')
+   
+   for episode in range(num_episodes):
+       logger.log_episode_start(episode)
+       
+       for step in range(max_steps):
+           obs, reward, done, info = env.step(action)
+           logger.log_step(step, obs, action, reward, done, info)
+           
+           # Log reward components for detailed analysis
+           logger.log_reward_breakdown(
+               forward_reward=10.5,
+               height_reward=-2.3,
+               energy_cost=-1.2,
+               contact_penalty=-0.5
+           )
+           
+       logger.log_episode_end()
+   
+   logger.close()
+
+================================================================================
+WHAT GETS LOGGED?
+================================================================================
+
+PER STEP:
+- Observation vector (parsed into meaningful components)
+  * Robot height
+  * Position and orientation (roll, pitch, yaw)
+  * Linear velocity (x, y, z)
+  * Angular velocity
+  * Joint positions and velocities
+  * External forces
+  
+- Action taken (8 joint commands)
+
+- Reward received
+
+- Physics state (if enabled):
+  * Contact points (which links are touching ground)
+  * Contact forces
+  * Friction parameters
+  * Joint torques
+
+- Reward breakdown (if logged):
+  * Forward velocity reward
+  * Height reward
+  * Orientation penalty
+  * Energy cost
+  * Contact penalty
+  * etc.
+
+PER EPISODE:
+- Total reward
+- Episode length
+- Start/end timestamps
+- Success/failure reason
+
+AGGREGATED:
+- Statistics across all episodes
+- Mean/std/min/max for key metrics
+- Training progress trends
+
+================================================================================
+HOW TO DEBUG WITH AI ASSISTANT
+================================================================================
+
+When asking an AI assistant (like me) to help debug issues:
+
+1. Run training/testing with logging:
+   python test_spider_with_logging.py --log-level INFO --episodes 5
+
+2. Analyze the logs:
+   python analyze_spider_logs.py --problems
+
+3. Export problematic episode:
+   python analyze_spider_logs.py --episode X --export problem.json
+
+4. Share the exported file or log snippets with the AI assistant:
+   "Here's episode 3 where the robot fell immediately: [paste contents]"
+   
+5. AI can analyze:
+   - Height trajectory (is it falling?)
+   - Velocity profile (is it moving?)
+   - Orientation (is it flipped?)
+   - Reward components (what's being penalized?)
+   - Action patterns (chaotic or coordinated?)
+   - Physics parameters (friction too low?)
+
+6. AI suggests fixes based on data
+
+7. Implement fixes and repeat
+
+================================================================================
+COMMON DEBUGGING SCENARIOS
+================================================================================
+
+SCENARIO 1: Robot falls immediately
+- Check: Height trajectory in first 10 steps
+- Look for: Rapid height decrease
+- Export: python analyze_spider_logs.py --episode N --verbose
+- Likely causes: Bad initial pose, physics instability, wrong friction
+
+SCENARIO 2: Robot not moving forward
+- Check: Forward velocity statistics
+- Look for: vel_x near zero
+- Analyze: python analyze_spider_logs.py --rewards
+- Likely causes: Reward function not encouraging forward motion, friction too high
+
+SCENARIO 3: Robot slides/slips
+- Check: Contact points and friction logs
+- Look for: Few contact points, low normal forces
+- Likely causes: Friction coefficients too low, slippery materials
+
+SCENARIO 4: Chaotic motion
+- Check: Joint velocity statistics
+- Look for: High variance in joint commands
+- Likely causes: Unstable control, poor reward shaping
+
+SCENARIO 5: Training not improving
+- Check: Episode reward trend over time
+- Look for: Flat or decreasing rewards
+- Analyze: python analyze_spider_logs.py --summary
+- Likely causes: Bad reward function, learning rate, exploration
+
+================================================================================
+LOG FILE STRUCTURE
+================================================================================
+
+spider_debug_TIMESTAMP.log (Text format)
+- Human-readable log with timestamps
+- Hierarchical structure (episode -> step -> details)
+- Easy to grep and search
+- Good for: Quick scanning, debugging specific issues
+
+spider_data_TIMESTAMP.json (JSON format)
+- Machine-readable structured data
+- Complete episode and step information
+- Easy to parse programmatically
+- Good for: Analysis scripts, plotting, AI assistant input
+
+spider_summary_TIMESTAMP.txt (Summary)
+- Statistics overview
+- Quick reference
+- Updated every 10 episodes
+- Good for: Training progress monitoring
+
+================================================================================
+BEST PRACTICES
+================================================================================
+
+1. Start with INFO level for general debugging
+2. Use DEBUG level only when analyzing specific steps
+3. Disable logging for long training runs (performance)
+4. Keep last 5-10 log files, delete older ones
+5. Export and save problematic episodes before retraining
+6. Share JSON snippets with AI assistants (not full logs)
+7. Compare logs before/after changes to verify improvements
+
+================================================================================
+PERFORMANCE IMPACT
+================================================================================
+
+Logging Level     | Performance Impact | When to Use
+------------------|-------------------|----------------------------------
+Disabled          | None              | Long training runs (millions of steps)
+ERROR             | Negligible        | Production training
+WARNING           | Negligible        | Production training
+INFO              | ~5-10% slower     | Active development, monitoring
+DEBUG             | ~20-30% slower    | Deep debugging, analysis
+
+For serious training (millions of timesteps), disable logging or use ERROR level.
+For debugging and development, INFO or DEBUG are recommended.
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Q: No log files created
+A: Check that logs/debug/ directory exists
+   Check that logging is enabled (not --no-log)
+   Check file permissions
+
+Q: Log files are huge
+A: Use INFO level instead of DEBUG
+   Reduce number of episodes
+   Logging captures a lot of data by design
+
+Q: Analysis tool can't find logs
+A: Specify log directory: --log-dir logs/debug
+   Or specify file directly: --file path/to/log.json
+
+Q: Missing reward breakdown in analysis
+A: Add logger.log_reward_breakdown() calls in environment code
+   This is optional but helpful for debugging
+
+================================================================================
+FOR MORE HELP
+================================================================================
+
+See example code in:
+- test_spider_with_logging.py (usage examples)
+- analyze_spider_logs.py (analysis examples)
+- environment/walking-spider/walking_spider/envs/debug_logger.py (API docs)
+
+Or ask your AI assistant:
+"How do I log [specific thing] in the spider environment?"
+"Can you analyze this log snippet: [paste data]"
+"The robot is [behavior], what should I check in the logs?"
+
+================================================================================
+
