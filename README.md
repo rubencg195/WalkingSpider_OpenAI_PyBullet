@@ -812,11 +812,23 @@ These three fixes will immediately address the "slippery robot" issue visible in
 
 To contribute improvements:
 
-1. Create a feature branch
-2. Make your changes
-3. Test with `python test_gym_spider_env.py`
-4. Submit a pull request with documentation of changes
-5. Update the TODO table above with your progress
+1. Create a feature branch for each improvement (e.g., `feature/fix-reward-bug`)
+2. Make your changes in that branch
+3. Commit early and often - one commit per logical change
+4. Test with `python test_gym_spider_env.py`
+5. Push your branch and create a Pull Request
+6. Update the TODO table status (⏳ → 🔄 → ✅)
+7. Merge after review and testing
+
+**Recent Commits (October 2025):**
+- `6691d77` - docs: Update TODO table - fix ordering, change status to Pending Testing
+- `2d03e40` - feat: Add joint damping to URDF (#7)
+- `13c3ccf` - feat: Add GIF snapshot recording system (#8)
+- `ef847f5` - feat: Add comprehensive debug logging system
+- `5e2f0a7` - feat: Critical environment improvements (#1-6, #8 integration)
+- `11cf0d3` - chore: Update package metadata from environment changes
+
+**Note:** The environment improvements (#1-6) were committed together as they were intertwined in a single file. In future, commit each improvement in a separate branch/PR for better tracking.
 
 ## License
 
