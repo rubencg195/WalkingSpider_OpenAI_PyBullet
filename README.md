@@ -25,6 +25,31 @@ python scripts/train_ppo.py --timesteps 500000 --render
 
 ---
 
+## Visual Gallery
+
+This section showcases the key components and visualization of the Walking Spider project:
+
+### Spider Animation
+The trained spider robot walking with a learned diagonal gait pattern. This GIF demonstrates the smooth locomotion achieved through PPO training:
+
+![Spider Walking Animation](/images/spider.gif)
+
+### Robot Structure (URDF)
+The skeletal representation showing all 8 joints (2 per leg × 4 legs) and the coordinate system. Green/red/blue axes represent X/Y/Z directions:
+
+![URDF Structure](/images/URDF.png)
+
+### PyBullet Simulation
+Real-time 3D physics simulation showing the spider robot during training. The visualization includes:
+- Cyan body representing the main chassis
+- Colored legs (red, green, blue) for different joint axes
+- Ground plane for contact detection
+- Debug visualization of joint forces and positions
+
+![PyBullet Simulation](/images/PyBullet.png)
+
+---
+
 ## Project Structure
 
 ```
@@ -275,31 +300,6 @@ The simulation includes all critical physics and RL improvements:
 - Coordinated leg movement
 - Smooth forward motion
 - Realistic physics
-
----
-
-## Visual Gallery
-
-This section showcases the key components and visualization of the Walking Spider project:
-
-### Spider Animation
-The trained spider robot walking with a learned diagonal gait pattern. This GIF demonstrates the smooth locomotion achieved through PPO training:
-
-![Spider Walking Animation](/images/spider.gif)
-
-### Robot Structure (URDF)
-The skeletal representation showing all 8 joints (2 per leg × 4 legs) and the coordinate system. Green/red/blue axes represent X/Y/Z directions:
-
-![URDF Structure](/images/URDF.png)
-
-### PyBullet Simulation
-Real-time 3D physics simulation showing the spider robot during training. The visualization includes:
-- Cyan body representing the main chassis
-- Colored legs (red, green, blue) for different joint axes
-- Ground plane for contact detection
-- Debug visualization of joint forces and positions
-
-![PyBullet Simulation](/images/PyBullet.png)
 
 ---
 
@@ -715,22 +715,6 @@ To contribute improvements:
 - DeepMind Locomotion Suite
 - MIT Cheetah Robot Control
 - Boston Dynamics-inspired research
-
----
-
-## Media
-
-**Walking Animation:**
-![Spider Walking](/images/spider.gif)
-
-**Simulation Screenshot:**
-![PyBullet Simulation](/images/PyBullet.png)
-
-**Robot URDF Structure:**
-![URDF Structure](/images/URDF.png)
-
-**Physical Prototype:**
-![Physical Robot](/images/spider(2).jpeg)
 
 ---
 
