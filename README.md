@@ -50,6 +50,78 @@ Real-time 3D physics simulation showing the spider robot during training. The vi
 
 ---
 
+### PPO Training Architecture
+
+```mermaid
+graph TB
+    subgraph Input["Input Data"]
+        Obs["Observations<br/>(75 values)"]
+        Action["Previous Actions<br/>(8 values)"]
+    end
+    
+    subgraph Network["Neural Networks"]
+        Policy["Policy Network<br/>(2x64 hidden)"]
+        Value["Value Network<br/>(2x64 hidden)"]
+    end
+    
+    subgraph RL["RL Core"]
+        Rollout["Rollout Collection<br/>(2048 steps)"]
+        Advantage["Advantage Calculation<br/>GAE Lambda=0.95"]
+        Clipping["PPO Clipping<br/>Epsilon=0.2"]
+    end
+    
+    subgraph Training["Training Loop"]
+        Loss["Compute Loss<br/>Policy + Value"]
+        Optimize["Optimizer Step<br/>Adam LR=3e-4"]
+        Update["Update Network<br/>Weights"]
+    end
+    
+    subgraph Env["Environment"]
+        PyBullet["PyBullet Physics<br/>9.81 m/s² gravity"]
+        Spider["8-Joint Spider<br/>Continuous Control"]
+        Reward["Reward Function<br/>Multi-objective"]
+    end
+    
+    subgraph Output["Output"]
+        Model["Trained Model<br/>.zip file"]
+        Plots["Training Plots<br/>Rewards, Episodes"]
+    end
+    
+    Obs --> Policy
+    Action --> Policy
+    Obs --> Value
+    Policy --> Rollout
+    Value --> Rollout
+    
+    Rollout --> Advantage
+    Advantage --> Clipping
+    Clipping --> Loss
+    
+    Loss --> Optimize
+    Optimize --> Update
+    Update --> Policy
+    Update --> Value
+    
+    Policy --> Spider
+    Spider --> Env
+    Spider --> Reward
+    Reward --> Loss
+    
+    PyBullet --> Spider
+    
+    Update --> Model
+    Loss --> Plots
+    
+    style Input fill:#e1f5ff
+    style Network fill:#fff3e0
+    style RL fill:#f3e5f5
+    style Training fill:#e8f5e9
+    style Env fill:#fce4ec
+    style Output fill:#c8e6c9
+```
+
+---
+
 ## Project Structure
 
 ```
@@ -329,76 +401,6 @@ The simulation includes all critical physics and RL improvements:
 - **Sample Efficient**: Reuses data multiple times for better sample efficiency
 - **Strong Performance**: Consistently achieves excellent results on locomotion tasks
 - **Adjustable Hyperparameters**: Easy to tune for different environments
-
-### PPO Training Architecture
-
-```mermaid
-graph TB
-    subgraph Input["Input Data"]
-        Obs["Observations<br/>(75 values)"]
-        Action["Previous Actions<br/>(8 values)"]
-    end
-    
-    subgraph Network["Neural Networks"]
-        Policy["Policy Network<br/>(2x64 hidden)"]
-        Value["Value Network<br/>(2x64 hidden)"]
-    end
-    
-    subgraph RL["RL Core"]
-        Rollout["Rollout Collection<br/>(2048 steps)"]
-        Advantage["Advantage Calculation<br/>GAE Lambda=0.95"]
-        Clipping["PPO Clipping<br/>Epsilon=0.2"]
-    end
-    
-    subgraph Training["Training Loop"]
-        Loss["Compute Loss<br/>Policy + Value"]
-        Optimize["Optimizer Step<br/>Adam LR=3e-4"]
-        Update["Update Network<br/>Weights"]
-    end
-    
-    subgraph Env["Environment"]
-        PyBullet["PyBullet Physics<br/>9.81 m/s² gravity"]
-        Spider["8-Joint Spider<br/>Continuous Control"]
-        Reward["Reward Function<br/>Multi-objective"]
-    end
-    
-    subgraph Output["Output"]
-        Model["Trained Model<br/>.zip file"]
-        Plots["Training Plots<br/>Rewards, Episodes"]
-    end
-    
-    Obs --> Policy
-    Action --> Policy
-    Obs --> Value
-    Policy --> Rollout
-    Value --> Rollout
-    
-    Rollout --> Advantage
-    Advantage --> Clipping
-    Clipping --> Loss
-    
-    Loss --> Optimize
-    Optimize --> Update
-    Update --> Policy
-    Update --> Value
-    
-    Policy --> Spider
-    Spider --> Env
-    Spider --> Reward
-    Reward --> Loss
-    
-    PyBullet --> Spider
-    
-    Update --> Model
-    Loss --> Plots
-    
-    style Input fill:#e1f5ff
-    style Network fill:#fff3e0
-    style RL fill:#f3e5f5
-    style Training fill:#e8f5e9
-    style Env fill:#fce4ec
-    style Output fill:#c8e6c9
-```
 
 ### Training Modes
 
