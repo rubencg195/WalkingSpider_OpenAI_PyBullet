@@ -170,24 +170,36 @@ python scripts/demo_trained_spider.py --physics-only # Physics demo immediately
 ## Setup & Installation
 
 ### Prerequisites
-- Python 3.10+
-- Virtual environment (venv or Conda)
-- PyBullet, stable-baselines3, OpenAI Gym
+- Python 3.10+ 
+- pip and venv
+- For Windows: WSL Ubuntu (Recommended)
 
-### Quick Setup
+### Quick Setup (WSL Ubuntu - Recommended)
 
-**Option A: Using pip (Simple)**
+**One-time setup:**
 ```bash
-python -m venv venv_spider
-source venv_spider/bin/activate      # On Linux/macOS
-# OR
-venv_spider\Scripts\activate         # On Windows
+# Clone repo and enter directory
+cd ~/WalkingSpider_OpenAI_PyBullet
 
+# Create virtual environment
+python3 -m venv venv_spider
+source venv_spider/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-cd environment/walking-spider && pip install -e .
+
+# Install the custom Gym environment
+cd environment/walking-spider
+pip install -e .
+cd ../../
+
+# Verify installation
+python scripts/demo_trained_spider.py --physics-only
 ```
 
-**Option B: Using Conda (For Windows)**
+### Alternative: Windows (Conda)
+
+If you prefer Conda on Windows:
 ```bash
 conda create -n spider python=3.10
 conda activate spider
@@ -196,24 +208,11 @@ pip install -r requirements.txt
 cd environment/walking-spider && pip install -e .
 ```
 
-**Option C: WSL Ubuntu (Recommended for Windows)**
-```bash
-# First time setup
-python3 -m venv venv_spider
-source venv_spider/bin/activate
-pip install -r requirements.txt
-pip install -c conda-forge pybullet
-cd environment/walking-spider && pip install -e .
-
-# Verify with:
-python scripts/demo_trained_spider.py --physics-only
-```
-
 ### Verify Installation
 ```bash
-python -c "import pybullet; print('✓ PyBullet installed')"
-python -c "import gym; print('✓ Gym installed')"
-python -c "import stable_baselines3; print('✓ Stable Baselines installed')"
+python -c "import pybullet; print('✓ PyBullet')"
+python -c "import gym; print('✓ Gym')"
+python -c "import stable_baselines3; print('✓ Stable Baselines 3')"
 ```
 
 ---
