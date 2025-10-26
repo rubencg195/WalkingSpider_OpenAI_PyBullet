@@ -289,12 +289,180 @@ The simulation includes all critical physics and RL improvements:
 - Parallel environments: Single (configurable)
 - Network: 2 hidden layers (64 units each)
 
+### Training Modes
+
+#### Mode 1: Fast Training (CPU, No Rendering)
+```bash
+python scripts/train_ppo.py --timesteps 100000
+```
+- ✅ Fastest training speed
+- ❌ No visual feedback
+- Good for: Bulk training, cloud servers
+- **Typical time**: 1-2 hours for 100k timesteps
+
+#### Mode 2: Interactive Training (CPU, With PyBullet GUI)
+```bash
+python scripts/train_ppo.py --timesteps 100000 --render
+```
+- ✅ See the spider learning to walk in real-time
+- ✅ PyBullet GUI shows the robot
+- ✅ Matplotlib plots update live during training
+- ❌ Slower (renders take CPU time)
+- Good for: Debugging, visualization, learning
+- **Typical time**: 2-3 hours for 100k timesteps (slower due to rendering)
+
+#### Mode 3: GPU Accelerated Training (CUDA, No Rendering)
+```bash
+python scripts/train_ppo.py --timesteps 500000 --device cuda
+```
+- ✅ Much faster neural network training
+- ✅ Best for large-scale training
+- ❌ Requires NVIDIA GPU with CUDA support
+- Good for: Production training, large datasets
+- **Typical time**: 30 minutes for 500k timesteps (with GPU)
+
+#### Mode 4: GPU Training With Visualization (CUDA + Rendering)
+```bash
+python scripts/train_ppo.py --timesteps 100000 --render --device cuda
+```
+- ✅ GPU-accelerated + visual feedback
+- ✅ See training progress in real-time
+- ❌ Requires NVIDIA GPU
+- ❌ Slowest option (GUI rendering + training)
+- Good for: Presentation, high-quality visualization
+- **Typical time**: 2-3 hours for 100k timesteps
+
+### Device Selection
+
+#### CPU (Default)
+```bash
+python scripts/train_ppo.py --device cpu
+```
+- Works on any machine
+- No special requirements
+- Slower training speed
+- Suitable for learning and testing
+
+#### GPU (CUDA)
+```bash
+python scripts/train_ppo.py --device cuda
+```
+**Requirements:**
+- NVIDIA GPU (GeForce, Tesla, etc.)
+- CUDA toolkit installed
+- cuDNN libraries
+- PyTorch with CUDA support
+
+**Install GPU support:**
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+
+**Verify GPU availability:**
+```bash
+python -c "import torch; print(torch.cuda.is_available())"
+```
+
 ### Training Timeline
 
 - **0-10k steps**: Initial exploration, basic walking emerges
 - **10-50k steps**: Improved coordination, gait development
 - **50-100k steps**: Speed optimization
 - **100k+ steps**: Fine-tuning, robust behavior
+
+### Training Output
+
+After training completes:
+- `output/trained_spider_ppo.zip` - Trained model binary
+- `training_rewards.png` - Final reward plot (saved at end)
+- Console logs - Episode metrics printed during training
+- Matplotlib window - Real-time plot (if --render enabled)
+
+### Quick Examples
+
+```bash
+# Quick test (5min, CPU, no GUI)
+python scripts/train_ppo.py --timesteps 10000
+
+# Interactive learning (2h, CPU, with GUI + matplotlib)
+python scripts/train_ppo.py --timesteps 100000 --render
+
+# Production training (30min, GPU, no GUI)
+python scripts/train_ppo.py --timesteps 500000 --device cuda
+
+# Full quality (fast GPU, visual feedback)
+python scripts/train_ppo.py --timesteps 500000 --render --device cuda
+```
+
+### PPO Training Architecture
+
+```mermaid
+graph TB
+    subgraph Input["Input Data"]
+        Obs["Observations<br/>(75 values)"]
+        Action["Previous Actions<br/>(8 values)"]
+    end
+    
+    subgraph Network["Neural Networks"]
+        Policy["Policy Network<br/>(2x64 hidden)"]
+        Value["Value Network<br/>(2x64 hidden)"]
+    end
+    
+    subgraph RL["RL Core"]
+        Rollout["Rollout Collection<br/>(2048 steps)"]
+        Advantage["Advantage Calculation<br/>GAE Lambda=0.95"]
+        Clipping["PPO Clipping<br/>Epsilon=0.2"]
+    end
+    
+    subgraph Training["Training Loop"]
+        Loss["Compute Loss<br/>Policy + Value"]
+        Optimize["Optimizer Step<br/>Adam LR=3e-4"]
+        Update["Update Network<br/>Weights"]
+    end
+    
+    subgraph Env["Environment"]
+        PyBullet["PyBullet Physics<br/>9.81 m/s² gravity"]
+        Spider["8-Joint Spider<br/>Continuous Control"]
+        Reward["Reward Function<br/>Multi-objective"]
+    end
+    
+    subgraph Output["Output"]
+        Model["Trained Model<br/>.zip file"]
+        Plots["Training Plots<br/>Rewards, Episodes"]
+    end
+    
+    Obs --> Policy
+    Action --> Policy
+    Obs --> Value
+    Policy --> Rollout
+    Value --> Rollout
+    
+    Rollout --> Advantage
+    Advantage --> Clipping
+    Clipping --> Loss
+    
+    Loss --> Optimize
+    Optimize --> Update
+    Update --> Policy
+    Update --> Value
+    
+    Policy --> Spider
+    Spider --> Env
+    Spider --> Reward
+    Reward --> Loss
+    
+    PyBullet --> Spider
+    
+    Update --> Model
+    Loss --> Plots
+    
+    style Input fill:#e1f5ff
+    style Network fill:#fff3e0
+    style RL fill:#f3e5f5
+    style Training fill:#e8f5e9
+    style Env fill:#fce4ec
+    style Output fill:#c8e6c9
+```
 
 ### Pre-trained Models
 

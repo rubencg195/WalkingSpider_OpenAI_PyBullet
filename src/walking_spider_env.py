@@ -157,7 +157,7 @@ class WalkingSpiderEnv(gym.Env):
 
 
     def compute_observation(self):
-      baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
+      baseOri = p.getBasePositionAndOrientation(self.robotId)
       JointStates = p.getJointStates(self.robotId, self.movingJoints)
       BaseAngVel = p.getBaseVelocity(self.robotId)
       ContactPoints = p.getContactPoints(self.robotId, self.plane)
@@ -225,7 +225,7 @@ class WalkingSpiderEnv(gym.Env):
       Rewards forward motion, stability, and energy efficiency while penalizing bad contacts.
       """
       # Get current state
-      baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
+      baseOri = p.getBasePositionAndOrientation(self.robotId)
       BaseAngVel = p.getBaseVelocity(self.robotId)
       JointStates = p.getJointStates(self.robotId, self.movingJoints)
       ContactPoints = p.getContactPoints(self.robotId, self.plane)
@@ -233,7 +233,7 @@ class WalkingSpiderEnv(gym.Env):
       p.stepSimulation()
       
       # Get state after simulation step
-      baseOri_after = np.array(p.getBasePositionAndOrientation(self.robotId))
+      baseOri_after = p.getBasePositionAndOrientation(self.robotId)
       BaseAngVel_after = p.getBaseVelocity(self.robotId)
       
       # 1. FORWARD VELOCITY REWARD (main objective)
@@ -299,7 +299,7 @@ class WalkingSpiderEnv(gym.Env):
       IMPROVEMENT: Proper termination conditions.
       Episode ends if robot falls, flips over, or reaches max steps.
       """
-      baseOri = np.array(p.getBasePositionAndOrientation(self.robotId))
+      baseOri = p.getBasePositionAndOrientation(self.robotId)
       z_height = baseOri[0][2]
       
       # Terminate if fallen (too low)

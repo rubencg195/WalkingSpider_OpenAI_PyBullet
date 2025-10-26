@@ -66,7 +66,7 @@ def demo_trained_model(model_path=None, episodes=5, max_steps=1000):
     model = PPO.load(model_path)
     
     # Create environment
-    env = WalkingSpiderEnv(render=True, enable_gui=True)
+    env = WalkingSpiderEnv(render=True, enable_gif_recording=True)
     
     print(f"✓ Model loaded successfully")
     print(f"✓ PyBullet GUI environment created")

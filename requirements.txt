@@ -5,6 +5,7 @@ scipy>=1.10.0
 # Robot Simulation & Environments
 pybullet>=3.1.0
 gym>=0.26.0
+shimmy>=2.0.0
 
 # Reinforcement Learning
 stable-baselines3>=2.0.0
