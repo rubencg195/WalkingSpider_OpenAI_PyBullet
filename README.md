@@ -732,4 +732,77 @@ To contribute improvements:
 2. Train a model: `python scripts/train_ppo.py --timesteps 50000`
 3. Evaluate results: `python scripts/demo_trained_spider.py`
 
+---
+
+## TODO - Future Improvements
+
+### Priority 1: 🔴 Critical Maintenance
+- [ ] **Migrate from OpenAI Gym to Gymnasium**
+  - **Why**: Gym is unmaintained since 2022, doesn't support NumPy 2.0
+  - **Warning**: Runtime warning on every execution
+  - **Task**: Replace `import gym` with `import gymnasium as gym` in:
+    - `src/walking_spider_env.py` (line 1)
+    - `scripts/train_ppo.py` (imports section)
+    - `scripts/demo_trained_spider.py` (imports section)
+  - **Reference**: https://gymnasium.farama.org/introduction/migration_guide/
+  - **Expected Impact**: Remove deprecation warnings, enable NumPy 2.0 compatibility
+
+### Priority 2: 🟡 Bug Fix
+- [ ] **Debug Spider Floating During Training**
+  - **Issue**: Spider appears to float/levitate instead of walking on ground
+  - **Likely Causes**:
+    - Gravity parameter misconfiguration (currently -10 m/s² vs physics demo -9.81 m/s²)
+    - Ground friction values too high (currently 5.0, may need tuning)
+    - Contact point detection issues with robot base
+    - Joint damping causing upward bias
+  - **Investigation Steps**:
+    1. Compare gravity values between `walking_spider_env.py` and `demo_trained_spider.py`
+    2. Test different friction coefficients (ground, legs, base)
+    3. Log contact forces during training
+    4. Visualize with `--render` flag to observe behavior
+  - **Reference**: Lines 65, 80-107 in `src/walking_spider_env.py`
+
+### Priority 3: 🟢 Performance Enhancement
+- [ ] **Improve Training Policy**
+  - **Goal**: Achieve faster convergence and better walking behavior
+  - **Potential Improvements**:
+    - Reward function tuning (currently: velocity=10.0, height=-5.0, energy=-0.1)
+    - Add curriculum learning (easier tasks → harder tasks)
+    - Implement action smoothing to reduce jerky movements
+    - Add experience replay buffer for better sample efficiency
+    - Experiment with different network architectures (64→128 hidden units)
+  - **Metrics to Track**: Episode reward trends, final distance traveled, gait stability
+  - **Hyperparameters to Tune**: Learning rate, GAE lambda, PPO clip range
+
+### Priority 4: 🟢 Feature Addition
+- [ ] **Add Alternative RL Algorithms as Parameters**
+  - **Goal**: Support multiple RL algorithms beyond PPO for experimentation
+  - **Candidates to Implement**:
+    - **A2C** (Advantage Actor-Critic) - faster convergence, less stable
+    - **SAC** (Soft Actor-Critic) - off-policy, better exploration
+    - **TD3** (Twin Delayed DDPG) - for continuous control
+    - **TRPO** (Trust Region Policy Optimization) - similar to PPO, theoretically grounded
+  - **Implementation**:
+    - Add `--algorithm` parameter to `train_ppo.py` (default: PPO)
+    - Create algorithm factory function
+    - Maintain same hyperparameter interface
+  - **Commands**:
+    ```bash
+    python scripts/train_ppo.py --algorithm ppo --timesteps 100000
+    python scripts/train_ppo.py --algorithm a2c --timesteps 100000
+    python scripts/train_ppo.py --algorithm sac --timesteps 100000
+    python scripts/train_ppo.py --algorithm td3 --timesteps 100000
+    ```
+  - **Dependencies**: All available in Stable-Baselines3
+
+### Completed ✅
+- ✅ Consolidated project structure (moved modules to `src/`, scripts to `scripts/`)
+- ✅ Added GPU/CUDA support with `--device` parameter
+- ✅ Implemented real-time matplotlib plotting during training
+- ✅ Created comprehensive documentation with mermaid diagrams
+- ✅ Fixed NumPy 2.0 compatibility in `walking_spider_env.py`
+- ✅ Added shimmy for Gym/Gymnasium bridge compatibility
+- ✅ Implemented demo script with physics-only mode
+- ✅ Created setup automation script
+
 
