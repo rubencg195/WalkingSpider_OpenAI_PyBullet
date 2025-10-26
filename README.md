@@ -1,4 +1,4 @@
-# RL Training for Quadruped Robot Locomotion
+# RL Training for Quadruped Robot Locomotion in Pybullet and Open AI Gym
 
 Train a simulated 4-legged quadruped robot (spider robot) to walk using reinforcement learning (PPO). The robot has 8 controllable joints (2 per leg). Uses PyBullet for physics simulation and OpenAI Gym for the RL environment.
 
@@ -53,7 +53,7 @@ Real-time 3D physics simulation showing the spider robot during training. The vi
 ## Project Structure
 
 ```
-WalkingSpider_OpenAI_PyBullet/
+rl-training-quadruped-robot-pybullet-openai-gym/
 ├── scripts/                          # Executable scripts
 │   ├── train_ppo.py                  # Train spider with PPO
 │   ├── demo_trained_spider.py         # Run trained model or physics demo
@@ -199,7 +199,7 @@ python scripts/demo_trained_spider.py --physics-only # Physics demo immediately
 
 ```bash
 # Clone or enter the repository directory
-cd ~/WalkingSpider_OpenAI_PyBullet
+cd ~/rl-training-quadruped-robot-pybullet-openai-gym
 
 # Run the setup script (handles everything automatically)
 bash scripts/setup_environment.sh
@@ -213,7 +213,7 @@ The script will:
 **Manual Setup** (if you prefer step-by-step):
 
 ```bash
-cd ~/WalkingSpider_OpenAI_PyBullet
+cd ~/rl-training-quadruped-robot-pybullet-openai-gym
 python3 -m venv venv_spider
 source venv_spider/bin/activate
 pip install -r requirements.txt
