@@ -1,6 +1,6 @@
-# WalkingSpider - RL Training for Quadruped Robot Locomotion
+# RL Training for Quadruped Robot Locomotion
 
-Train a simulated 8-legged spider robot to walk using reinforcement learning (PPO). Uses PyBullet for physics simulation and OpenAI Gym for the RL environment.
+Train a simulated 4-legged quadruped robot (spider robot) to walk using reinforcement learning (PPO). The robot has 8 controllable joints (2 per leg). Uses PyBullet for physics simulation and OpenAI Gym for the RL environment.
 
 ## Quick Start
 
