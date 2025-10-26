@@ -78,7 +78,7 @@ graph TB
     
     subgraph Env["Environment"]
         PyBullet["PyBullet Physics<br/>9.81 m/s² gravity"]
-        Spider["8-Joint Spider<br/>Continuous Control"]
+        Spider["4-Legged Robot<br/>8 Joints (2 per leg)"]
         Reward["Reward Function<br/>Multi-objective"]
     end
     
