@@ -1,3 +1,24 @@
 {
-    "python.pythonPath": "/home/ruben/.conda/envs/walking_spider/bin/python"
+    "terminal.integrated.profiles.windows": {
+        
+        "Ubuntu": {
+                "path": "C:\\Windows\\System32\\wsl.exe",
+                "args": ["-d", "Ubuntu"] // Replace "Ubuntu" with your distribution name if different
+        },
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "Command Prompt": {
+            "path": [
+                "${env:windir}\\Sysnative\\cmd.exe",
+                "${env:windir}\\System32\\cmd.exe"
+            ],
+            "args": [],
+            "icon": "terminal-cmd"
+        },
+        "Git Bash": {
+            "source": "Git Bash"
+        }
+    }
 }

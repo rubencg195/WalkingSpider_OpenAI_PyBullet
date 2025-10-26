@@ -13,9 +13,9 @@ python scripts/demo_trained_spider.py --physics-only
 ### Option 2: Train & Demo
 ```bash
 python scripts/train_ppo.py --timesteps 50000
-python scripts/demo_trained_spider.py
+python scripts/demo_trained_spider.py --model output/trained_spider_ppo.zip
 ```
-**Time:** ~5 minutes | **Output:** Trained model + reward plot
+**Time:** ~5 minutes | **Output:** Trained model saved to `output/trained_spider_ppo.zip` + reward plot
 
 ### Option 3: Production Training
 ```bash
@@ -29,27 +29,21 @@ python scripts/train_ppo.py --timesteps 500000 --render
 
 ```
 WalkingSpider_OpenAI_PyBullet/
-├── scripts/                          # 2 main executable scripts
+├── scripts/                          # Executable scripts
 │   ├── train_ppo.py                  # Train spider with PPO
-│   └── demo_trained_spider.py         # Run trained model or physics demo
+│   ├── demo_trained_spider.py         # Run trained model or physics demo
+│   └── setup_environment.sh           # Setup script
 │
-├── src/
-│   ├── spider_simple.urdf            # Robot definition (primary)
-│   ├── spider.xml                    # Alternative URDF
-│   └── meshes/                       # 3D models
+├── src/                              # Source code modules
+│   ├── walking_spider_env.py          # Custom Gym environment class
+│   ├── gif_recorder.py                # Visual debugging utility
+│   ├── debug_logger.py                # Logging system utility
+│   ├── spider.xml                     # Robot URDF file
+│   ├── spider_simple.urdf             # Alternative robot definition
+│   └── meshes/                        # 3D models (base, leg, servo)
 │
-├── environment/walking-spider/       # Custom Gym environment
-│   ├── walking_spider/
-│   │   ├── envs/
-│   │   │   ├── walking_spider_env.py # Main environment
-│   │   │   ├── gif_recorder.py       # Visual debugging
-│   │   │   ├── debug_logger.py       # Logging system
-│   │   │   ├── spider_simple.urdf
-│   │   │   └── spider.xml
-│   │   └── __init__.py
-│   └── setup.py
-│
-├── experience_learned/               # Pre-trained models
+├── output/                           # Trained model binaries (output)
+├── experience_learned/               # Pre-trained models (archive)
 ├── images/                           # Reference images + spider.gif
 ├── files/                            # CAD files for physical robot
 ├── videos/                           # GIF snapshots
@@ -85,11 +79,11 @@ python scripts/train_ppo.py [options]
 - `--lr FLOAT` - Learning rate (default: 0.0003)
 - `--steps N` - Steps per update (default: 2048)
 - `--batch-size N` - Batch size (default: 64)
-- `--model PATH` - Model save path (default: `trained_spider_ppo.zip`)
+- `--model PATH` - Model save path (default: `output/trained_spider_ppo.zip`)
 - `--render` - Show GUI during training
 
 **Output:**
-- `trained_spider_ppo.zip` - Trained model
+- `output/trained_spider_ppo.zip` - Trained model (in output directory)
 - `training_rewards.png` - Reward plot with moving average
 - `training_logs/` - TensorBoard logs
 
@@ -106,14 +100,14 @@ python scripts/train_ppo.py --timesteps 500000 --render  # Full training with GU
 
 **Purpose:** Visualize trained models or test physics with hardcoded gait
 
-**Mode A: With Trained Model** (default)
-- Loads trained PPO model
+**Mode A: With Trained Model** (requires --model parameter)
+- Loads trained PPO model from specified path
 - Runs with PyBullet 3D GUI
 - Shows learned walking behavior
 - Reports statistics: rewards, distance, steps
 
 ```bash
-python scripts/demo_trained_spider.py [options]
+python scripts/demo_trained_spider.py --model output/trained_spider_ppo.zip [options]
 ```
 
 **Mode B: Physics Demo Only** (no model needed)
@@ -126,15 +120,15 @@ python scripts/demo_trained_spider.py --physics-only
 ```
 
 **Options:**
-- `--model PATH` - Model path (default: `trained_spider_ppo.zip`)
+- `--model PATH` - **REQUIRED** Path to trained model (unless using --physics-only)
 - `--episodes N` - Number of episodes (default: 5)
 - `--max-steps N` - Max steps per episode (default: 1000)
-- `--physics-only` - Use hardcoded gait (no model)
+- `--physics-only` - Use hardcoded gait (no model needed)
 
 **Examples:**
 ```bash
-python scripts/demo_trained_spider.py              # Run 5 episodes with trained model
-python scripts/demo_trained_spider.py --episodes 10  # Run 10 episodes
+python scripts/demo_trained_spider.py --model output/trained_spider_ppo.zip  # Run 5 episodes
+python scripts/demo_trained_spider.py --model output/trained_spider_ppo.zip --episodes 10
 python scripts/demo_trained_spider.py --physics-only # Physics demo immediately
 ```
 
@@ -172,44 +166,37 @@ python scripts/demo_trained_spider.py --physics-only # Physics demo immediately
 ### Prerequisites
 - Python 3.10+ 
 - pip and venv
-- For Windows: WSL Ubuntu (Recommended)
+- WSL Ubuntu on Windows (recommended)
 
-### Quick Setup (WSL Ubuntu - Recommended)
+### Quick Setup (WSL Ubuntu)
 
-**One-time setup:**
+**One-time setup using the automated script:**
+
 ```bash
-# Clone repo and enter directory
+# Clone or enter the repository directory
 cd ~/WalkingSpider_OpenAI_PyBullet
 
-# Create virtual environment
-python3 -m venv venv_spider
-source venv_spider/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install the custom Gym environment
-cd environment/walking-spider
-pip install -e .
-cd ../../
-
-# Verify installation
-python scripts/demo_trained_spider.py --physics-only
+# Run the setup script (handles everything automatically)
+bash scripts/setup_environment.sh
 ```
 
-### Alternative: Windows (Conda)
+The script will:
+1. Create a Python virtual environment (`venv_spider/`)
+2. Install all dependencies from `requirements.txt`
+3. Verify all packages are installed correctly
 
-If you prefer Conda on Windows:
+**Manual Setup** (if you prefer step-by-step):
+
 ```bash
-conda create -n spider python=3.10
-conda activate spider
-conda install -c conda-forge pybullet
+cd ~/WalkingSpider_OpenAI_PyBullet
+python3 -m venv venv_spider
+source venv_spider/bin/activate
 pip install -r requirements.txt
-cd environment/walking-spider && pip install -e .
 ```
 
 ### Verify Installation
 ```bash
+source venv_spider/bin/activate
 python -c "import pybullet; print('✓ PyBullet')"
 python -c "import gym; print('✓ Gym')"
 python -c "import stable_baselines3; print('✓ Stable Baselines 3')"

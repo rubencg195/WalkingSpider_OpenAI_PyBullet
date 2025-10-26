@@ -1,7 +1,0 @@
-Metadata-Version: 2.4
-Name: walking_spider
-Version: 0.0.1
-Requires-Dist: gym
-Requires-Dist: pybullet
-Requires-Dist: baselines
-Dynamic: requires-dist
