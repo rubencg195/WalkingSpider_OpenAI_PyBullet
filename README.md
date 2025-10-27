@@ -720,12 +720,6 @@ To contribute improvements:
 
 ---
 
-## License
-
-[Specify your license here]
-
----
-
 ## Status
 
 ✅ **Project Status:** Ready for use
